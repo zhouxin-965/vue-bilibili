@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import NavBar from '@/components/common/navBar.vue'
+import NavBar from '@/components/common/Navbar.vue'
 import editBanner from '@/components/common/editBanner.vue'
 export default {
     data() {

@@ -1,47 +1,64 @@
 <template>
   <div>
-    <common-top news="登录bilibili">
-      <div slot="right" @click="$router.push('/register')" style="font-size:3.333vw">切换到注册</div>
-    </common-top>
-    <common-text label="账号" placeholder="请输入账号" rule="^.{6,16}$" style="margin:4.167vw 0;" @inputchange="res => model.username = res"></common-text>
-    <common-text label="密码" placeholder="请输入密码" rule="^.{6,16}$" type="password" @inputchange="res => model.password = res"></common-text>
-    <common-btn text="登录" @register="register"></common-btn>
+      <login-top Text="登录bilibili">
+            <div slot="right" style="font-size:3.611vw" @click="$router.push('/register')">用户注册</div>
+      </login-top>
+
+        <login-text label="账号" 
+        placeholder="请输入账号"
+         @contentWatch="res => model.username = res"
+         style="margin:4.167vw 0"
+         >
+        </login-text>
+
+        <login-text label="密码" 
+            placeholder="请输入密码" 
+            type="password"
+            @contentWatch="res => model.password = res"
+        >
+        </login-text>
+
+        <login-btn BtnText="登录" @TextClick="AjaxInsert"></login-btn>
   </div>
 </template>
 
 <script>
-import commonTop from "@/components/common/commonTop.vue"
-import commonText from '@/components/common/commonText.vue';
-import commonBtn from '@/components/common/commonBtn.vue';
+import LoginTop from '@/components/common/LoginTop.vue'
+import LoginText from '@/components/common/LoginText.vue'
+import LoginBtn from '@/components/common/LoginBtn.vue'
 export default {
-  components:{
-    commonTop,
-    commonText,
-    commonBtn
-  },
-  props:{},
-  data(){
-    return {
-      model:{
-        username:'',
-        password:''
-      }
+    data() {
+        return {
+            model:{}
+        }
+    },
+    components:{
+        LoginTop,
+        LoginText,
+        LoginBtn
+    },
+    methods:{
+        async AjaxInsert() {
+            let rulg = /^.{6,16}$/
+            if(rulg.test(this.model.username)&&rulg.test(this.model.password)){
+                const res =  await this.$http.post('/login',this.model)
+                this.$msg.fail(res.data.msg)
+                if(res.data.code == 301 || res.data.code == 302){
+                    return
+                }
+                localStorage.setItem('token',res.data.token)
+                localStorage.setItem('id',res.data.id)
+                setTimeout(() => {  
+                    this.$router.push('/userinfo')
+                },1000)
+            }else{
+                this.$msg.fail('格式不正确,请重新输入!')
+            }
+        }
     }
-  },
-  methods:{
-    async register(){
-      let rue = /^.{6,16}$/;
-      if( rue.test(this.model.username) && rue.test(this.model.password)){
-        const res = await this.$http.post('/login',this.model)
-        this.$msg.fail(res.data.msg)
-        this.$router.push('/user')
-      }else{
-        this.$msg.fail('注册失败，请输入6-16位数')
-      }
-    }
-  }
 }
 </script>
-<style  scoped>
+
+<style>
 
 </style>
